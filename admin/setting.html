@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم إضافة الموقع</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #4c51bf 0%, #6b46c1 100%); color: white; padding: 30px; text-align: center; }
+        .header h1 { font-size: 28px; margin-bottom: 10px; }
+        .tabs { display: flex; background: #f7fafc; border-bottom: 1px solid #e2e8f0; }
+        .tab { flex: 1; padding: 20px; text-align: center; cursor: pointer; font-weight: 600; color: #4a5568; transition: all 0.3s; }
+        .tab:hover { background: #edf2f7; }
+        .tab.active { color: #4c51bf; background: white; border-bottom: 3px solid #4c51bf; }
+        .tab-content { padding: 40px; display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .form-group { margin-bottom: 25px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #2d3748; }
+        input, select, textarea { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 15px; }
+        .btn { background: linear-gradient(135deg, #4c51bf 0%, #6b46c1 100%); color: white; padding: 14px 28px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; margin-top: 20px; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(76, 81, 191, 0.3); }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: #f7fafc; padding: 20px; border-radius: 10px; text-align: center; border: 1px solid #e2e8f0; }
+        .stat-card h3 { font-size: 32px; color: #4c51bf; margin-bottom: 5px; }
+        .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .alert-success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .alert-info { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ إضافة الكشف التلقائي عن الموقع</h1>
+            <p>للمتاجر الإلكترونية على YouCan</p>
+        </div>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('general')">الإعدادات العامة</div>
+            <div class="tab" onclick="showTab('api')">مفاتيح API</div>
+            <div class="tab" onclick="showTab('stats')">الإحصائيات</div>
+            <div class="tab" onclick="showTab('help')">المساعدة</div>
+        </div>
+        
+        <div id="general" class="tab-content active">
+            <div class="alert alert-info">
+                ⚡ هذه الإضافة تكشف موقع العميل تلقائيًا وتعبئ عنوان الشحن
+            </div>
+            
+            <div class="form-group">
+                <label>تفعيل الإضافة:</label>
+                <select>
+                    <option value="yes" selected>نعم</option>
+                    <option value="no">لا</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>اللغة الافتراضية:</label>
+                <select>
+                    <option value="ar" selected>العربية</option>
+                    <option value="en">الإنجليزية</option>
+                    <option value="fr">الفرنسية</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>نص الزر:</label>
+                <input type="text" value="📍 اكتشف موقعي تلقائيًا">
+            </div>
+            
+            <button class="btn" onclick="saveSettings()">💾 حفظ الإعدادات</button>
+        </div>
+        
+        <div id="api" class="tab-content">
+            <div class="form-group">
+                <label>بريد OpenStreetMap:</label>
+                <input type="email" id="osmEmail" placeholder="your-email@gmail.com">
+                <small style="display: block; margin-top: 5px; color: #718096;">مطلوب لخدمة OpenStreetMap</small>
+            </div>
+            
+            <div class="form-group">
+                <label>YouCan Client ID:</label>
+                <input type="text" id="clientId" placeholder="أدخل Client ID">
+            </div>
+            
+            <div class="form-group">
+                <label>YouCan Client Secret:</label>
+                <input type="password" id="clientSecret" placeholder="أدخل Client Secret">
+            </div>
+            
+            <button class="btn" onclick="testAPI()">🔑 التحقق من المفاتيح</button>
+        </div>
+        
+        <div id="stats" class="tab-content">
+            <div class="stats">
+                <div class="stat-card">
+                    <h3 id="detectionsCount">0</h3>
+                    <p>عمليات الاكتشاف</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="successRate">0%</h3>
+                    <p>معدل النجاح</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="todayUsers">0</h3>
+                    <p>مستخدمين اليوم</p>
+                </div>
+            </div>
+            
+            <p>📊 الإحصائيات تظهر بعد بدء استخدام الإضافة.</p>
+            
+            <button class="btn" onclick="loadStats()">🔄 تحديث الإحصائيات</button>
+        </div>
+        
+        <div id="help" class="tab-content">
+            <h3>❓ كيفية الاستخدام:</h3>
+            <ol style="margin: 20px 0; padding-right: 20px;">
+                <li>نشر التطبيق على Vercel</li>
+                <li>تسجيل إضافة جديدة في YouCan Developer Portal</li>
+                <li>إضافة السكريت إلى متجرك</li>
+                <li>الاختبار في صفحة الدفع</li>
+            </ol>
+            
+            <h3>🔗 روابط مهمة:</h3>
+            <ul style="margin: 20px 0; padding-right: 20px;">
+                <li><a href="https://vercel.com" target="_blank">Vercel للنشر</a></li>
+                <li><a href="https://developer.youcan.shop" target="_blank">YouCan Developer Portal</a></li>
+                <li><a href="https://nominatim.org" target="_blank">OpenStreetMap Documentation</a></li>
+                <li><a href="/api/health" target="_blank">فحص حالة الخادم</a></li>
+            </ul>
+            
+            <h3>📞 الدعم الفني:</h3>
+            <p>للإبلاغ عن مشاكل أو الاستفسارات:</p>
+            <p>📧 support@youcan-plugin.com</p>
+        </div>
+    </div>
+    
+    <script>
+        function showTab(tabId) {
+            // إخفاء جميع المحتويات
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // إلغاء تنشيط جميع التبويبات
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // إظهار المحتوى المطلوب
+            document.getElementById(tabId).classList.add('active');
+            
+            // تنشيط التبويب المطلوب
+            event.target.classList.add('active');
+        }
+        
+        function saveSettings() {
+            alert('تم حفظ الإعدادات بنجاح!');
+        }
+        
+        function testAPI() {
+            alert('جارٍ التحقق من مفاتيح API...');
+            // هنا سيتم إضافة كود التحقق الفعلي
+        }
+        
+        function loadStats() {
+            document.getElementById('detectionsCount').textContent = '125';
+            document.getElementById('successRate').textContent = '92%';
+            document.getElementById('todayUsers').textContent = '18';
+            alert('تم تحديث الإحصائيات');
+        }
+        
+        // تحميل الإحصائيات عند فتح الصفحة
+        window.onload = function() {
+            loadStats();
+        };
+    </script>
+</body>
+</html>

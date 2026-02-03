@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار إضافة YouCan للكشف عن الموقع</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); text-align: center; }
+        h1 { color: #2d3748; margin-bottom: 20px; }
+        .test-btn { background: linear-gradient(135deg, #4c51bf 0%, #6b46c1 100%); color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; margin: 20px 0; }
+        .test-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(76, 81, 191, 0.3); }
+        .result { background: #f7fafc; padding: 20px; border-radius: 8px; margin-top: 20px; text-align: left; display: none; }
+        .success { color: #10b981; }
+        .error { color: #dc2626; }
+        .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 اختبار إضافة YouCan للكشف عن الموقع</h1>
+        <p>اختبار API وتحديد الموقع تلقائيًا</p>
+        
+        <div style="margin: 30px 0;">
+            <button class="test-btn" onclick="testAPI()">
+                <span id="apiSpinner" class="spinner" style="display: none;"></span>
+                🔍 اختبار API
+            </button>
+            <button class="test-btn" onclick="testGeolocation()">
+                <span id="geoSpinner" class="spinner" style="display: none;"></span>
+                📍 اختبار تحديد الموقع
+            </button>
+        </div>
+        
+        <div id="apiResult" class="result"></div>
+        <div id="geoResult" class="result"></div>
+        
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+            <h3>🔗 روابط الاختبار:</h3>
+            <ul style="text-align: right; padding-right: 20px; margin-top: 10px;">
+                <li><a href="/api/health">/api/health</a> - فحص حالة الخادم</li>
+                <li><a href="/admin">/admin</a> - لوحة التحكم</li>
+                <li><a href="/widget.js">/widget.js</a> - سكريبت الواجهة</li>
+                <li><a href="/install?shop=test">/install</a> - تثبيت الإضافة</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        async function testAPI() {
+            const spinner = document.getElementById('apiSpinner');
+            const result = document.getElementById('apiResult');
+            
+            spinner.style.display = 'inline-block';
+            result.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                
+                result.innerHTML = `
+                    <h3 class="success">✅ API يعمل بنجاح</h3>
+                    <p><strong>الحالة:</strong> ${data.status}</p>
+                    <p><strong>الخدمة:</strong> ${data.service}</p>
+                    <p><strong>الإصدار:</strong> ${data.version}</p>
+                    <p><strong>الوقت:</strong> ${data.timestamp}</p>
+                    <p><strong>مدة التشغيل:</strong> ${data.uptime.toFixed(2)} ثانية</p>
+                `;
+                result.style.display = 'block';
+            } catch (error) {
+                result.innerHTML = `
+                    <h3 class="error">❌ فشل اختبار API</h3>
+                    <p>الخطأ: ${error.message}</p>
+                `;
+                result.style.display = 'block';
+            } finally {
+                spinner.style.display = 'none';
+            }
+        }
+        
+        async function testGeolocation() {
+            const spinner = document.getElementById('geoSpinner');
+            const result = document.getElementById('geoResult');
+            
+            spinner.style.display = 'inline-block';
+            result.style.display = 'none';
+            
+            if (!navigator.geolocation) {
+                result.innerHTML = '<h3 class="error">❌ المتصفح لا يدعم تحديد الموقع</h3>';
+                result.style.display = 'block';
+                spinner.style.display = 'none';
+                return;
+            }
+            
+            try {
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, {
+                        enableHighAccuracy: true,
+                        timeout: 10000
+                    });
+                });
+                
+                const geoResponse = await fetch('/api/geocode', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                        language: 'ar'
+                    })
+                });
+                
+                const geoData = await geoResponse.json();
+                
+                if (geoData.success) {
+                    result.innerHTML = `
+                        <h3 class="success">✅ تم تحديد موقعك بنجاح</h3>
+                        <p><strong>الإحداثيات:</strong> ${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}</p>
+                        <p><strong>العنوان:</strong> ${geoData.address.formatted}</p>
+                        <p><strong>المدينة:</strong> ${geoData.address.components.city}</p>
+                        <p><strong>الدولة:</strong> ${geoData.address.components.country}</p>
+                        <p><strong>الرمز البريدي:</strong> ${geoData.address.components.zip || 'غير متوفر'}</p>
+                        <p><strong>المصدر:</strong> ${geoData.source}</p>
+                    `;
+                } else {
+                    throw new Error(geoData.error);
+                }
+            } catch (error) {
+                result.innerHTML = `
+                    <h3 class="error">❌ فشل تحديد الموقع</h3>
+                    <p>الخطأ: ${error.message}</p>
+                    <p>قد يكون السبب:</p>
+                    <ul>
+                        <li>رفض الإذن للوصول إلى الموقع</li>
+                        <li>مشكلة في اتصال الإنترنت</li>
+                        <li>خطأ في خدمة OpenStreetMap</li>
+                    </ul>
+                `;
+            } finally {
+                result.style.display = 'block';
+                spinner.style.display = 'none';
+            }
+        }
+        
+        // اختبار تلقائي عند التحميل
+        window.addEventListener('load', () => {
+            setTimeout(testAPI, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,14 +1,28 @@
 # YouCan Auto Location Plugin
 
-Automatic location detection for YouCan ecommerce stores.
+إضافة لاكتشاف موقع العميل تلقائيًا في متاجر YouCan.
 
-## Features
-- Detect customer location automatically
-- Auto-fill shipping address
-- Support for Arabic and English
-- Free OpenStreetMap integration
+## المميزات
+- اكتشاف الموقع تلقائيًا باستخدام GPS
+- تعبئة عنوان الشحن أوتوماتيكيًا
+- دعم اللغة العربية والإنجليزية
+- مجاني بالكامل (OpenStreetMap)
+- تكامل سهل مع YouCan
 
-## Deployment
-Deploy to Vercel with one click:
+## التثبيت السريع
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/YOUR_USERNAME/youcan-auto-location)
+### 1. النشر على Vercel
+[![نشر على Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/imadferradji/youcan-auto-location)
+
+### 2. تسجيل الإضافة في YouCan
+1. اذهب إلى https://developer.youcan.shop/apps
+2. أنشئ App جديد
+3. أدخل:
+   - App URL: رابط Vercel الخاص بك
+   - Redirect URI: رابطك/callback
+   - Scopes: read_checkouts, write_checkouts
+
+### 3. إضافة إلى متجرك
+أضف هذا السكريت إلى theme.liquid:
+```liquid
+<script src="YOUR_VERCEL_URL/widget.js" defer></script>
