@@ -181,22 +181,23 @@ app.post("/api/geocode", async (req, res) => {
 
     // استخدام OpenStreetMap Nominatim
     const response = await axios.get(
-      "https://nominatim.openstreetmap.org/reverse",
-      {
-        params: {
-          format: "json",
-          lat: safeLat,
-          lon: safeLng,
-          zoom: 18,
-          addressdetails: 1,
-          "accept-language": language,
-          email: process.env.OSM_EMAIL || "contact@youcanplugin.com",
-        },
-        headers: {
-          "User-Agent": "YouCan-Location-Plugin/1.0 (contact@youcanplugin.com)",
-        },
-        timeout: 10000 // 10 ثواني timeout
-      }
+  	"https://nominatim.openstreetmap.org/reverse",
+  	{
+    		params: 
+		{
+      			format: "json",
+      			lat: safeLat,
+      			lon: safeLng,
+      			zoom: 18,
+      			addressdetails: 1,
+      			"accept-language": language,
+      			email: "imadferradji@gmail.com", // ⬅️ ضع بريدك هنا مباشرة
+    		},
+    		headers: {
+      			"User-Agent": "YouCan-Location-Plugin/1.0 (imadferradji@gmail.com)",
+    		},
+    		timeout: 10000
+  	}
     );
 
     const { address, display_name } = response.data;
